@@ -1,0 +1,31 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "TCPClientPlugin",
+	"Description": "Enjoy your TCP network",
+	"Category": "Networking",
+	"CreatedBy": "Elogen",
+	"CreatedByURL": "",
+	"DocsURL": "https://github.com/grpht/TCPClientPlugin",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/1740bee2a16e4fa3b3eb4b69f9cb0d48",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "TCPClientPlugin",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Android",
+				"Mac",
+				"Linux",
+			]
+
+		}
+	]
+}
