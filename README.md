@@ -1,7 +1,7 @@
 # TCPClientPlugin
 TCPClient make easy to connect and comunicate with your server via TCP Socket.<br>
 You can easily implement all the functions by learning how to use 4 blueprints.<br>
-Because of It is only maden by C++17 and unreal libray, any device that supports multi-threading can be used.<br>
+Because of It is only maden by C++14 and unreal libray, any device that supports multi-threading can be used.<br>
 
 ### features
 - All features can be created using blueprints.
