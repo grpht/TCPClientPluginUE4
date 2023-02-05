@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 
+#pragma pack(push, 1)
 //change member as you want, But don't use virtual 
 struct TCPPacketHeader
 {
@@ -11,3 +12,4 @@ struct TCPPacketHeader
 	//int16 Any; //add or remove any header
 	int16 Id;
 };
+#pragma pack(pop)
