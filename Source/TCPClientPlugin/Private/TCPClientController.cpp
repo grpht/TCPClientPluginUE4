@@ -7,6 +7,7 @@
 #include "TCPRecvBuffer.h"
 #include "TCPSessionBase.h"
 #include "TCPClientError.h"
+#include "TCPHeaderComponent.h"
 
 #define NEW_AYNC_CALLBACK(FuncName) [this](FAsyncResultRef res){ if(this != nullptr) FuncName(res);}
 
@@ -115,6 +116,12 @@ void TCPClientController::RecvCallback(FAsyncResultRef result)
 		return;
 	}
 
+	if (Header == nullptr)
+	{
+		Disconnect("Header is null", false);
+		return;
+	}
+
 	if (bytesTransferred > 0)
 	{
 		if (false == RecvBuff->OnWrite(bytesTransferred)) //Wirte Byte 앞으로 이동
@@ -152,14 +159,15 @@ void TCPClientController::RecvCallback(FAsyncResultRef result)
 
 bool TCPClientController::IsOneMessage(uint8* buffer, int32 dataSize, OUT int32& sizeOfMessage)
 {
-	if (dataSize < sizeof(TCPPacketHeader))
+	if (dataSize < Header->GetHeaderSize())
 	{
 		return false;
 	}
 
-	TCPPacketHeader header = *(reinterpret_cast<TCPPacketHeader*>(buffer));
-	sizeOfMessage = header.Size;
-	if (dataSize < header.Size)
+	const int32 messageSize = Header->ReadTotalSize(buffer);
+
+	sizeOfMessage = messageSize;
+	if (dataSize < messageSize)
 	{
 		return false;
 	}
