@@ -5,7 +5,6 @@
 #include "TCPClientController.h"
 #include "TCPSendPacketBase.h"
 #include "TCPRecvPacketBase.h"
-#include "TCPHeaderComponent.h"
 
 #include "Serialization/BufferArchive.h"
 #include "TCPBufferReader.h"
@@ -33,12 +32,30 @@ void UTCPSessionBase::SendPacket(ITCPSendPacket& sendPacket)
 
 	writer.Reserve(Header->GetHeaderSize());
 	sendPacket.ConvertToBytes(writer);
-
 	int id = sendPacket.GetPacketId();
 	Header->WriteHeader(writer, id);
 
 	FByteArrayRef SendBuffPtr = ref;
 	Controller->StartSend(SendBuffPtr);
+}
+
+
+void UTCPSessionBase::SendPacketBP(UTCPSendPacketBase* sendPacket)
+{
+	if (sendPacket == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Sendpacket is null"))
+			check(sendPacket != nullptr)
+			return;
+	}
+	SendPacket(*sendPacket);
+}
+
+void UTCPSessionBase::RegisterRecvPacket(TSubclassOf<UTCPRecvPacketBase> recvPacket)
+{
+	auto c = *recvPacket;
+	auto cdo = recvPacket.GetDefaultObject();
+	RecvPacketMap.Add(cdo->GetPacketId(), *recvPacket);
 }
 
 void UTCPSessionBase::OnStart()
@@ -49,17 +66,16 @@ void UTCPSessionBase::OnStart()
 	}
 	else
 	{
-		Header = NewObject<UTCPHeaderComponent>(this);
+		Header = NewObject<UTCPHeaderComponent>();
 	}
 	Controller->SetHeader(Header);
 
-	OnStartBP();
-}
+	for (auto recvPacket : PacketToReceive)
+	{
+		RegisterRecvPacket(recvPacket);
+	}
 
-void UTCPSessionBase::OnDestroy()
-{
-	OnDestroyBP();
-	RecvPacketMap.Empty();
+	OnStartBP();
 }
 
 void UTCPSessionBase::OnRecv(int32 id, TCPBufferReader& reader)
@@ -78,10 +94,10 @@ void UTCPSessionBase::OnSend(int32 id, int32 contentsByteSize)
 	OnSendBP(id, contentsByteSize);
 }
 
-void UTCPSessionBase::SendPacketBP(UTCPSendPacketBase* sendPacket)
+void UTCPSessionBase::OnDestroy()
 {
-	checkf(sendPacket != nullptr, TEXT("Sendpacket is null"));
-	SendPacket(*sendPacket);
+	OnDestroyBP();
+	RecvPacketMap.Empty();
 }
 
 void UTCPSessionBase::ConnectedCallback(bool success)
@@ -106,7 +122,10 @@ void UTCPSessionBase::RecvMessageCallback(FByteArrayRef& messageByte)
 {
 	uint8* buffer = messageByte->GetData();
 	int32 contentsSize = Header->ReadTotalSize(buffer) - Header->GetHeaderSize();
-
+	if (!Header->CheckIntegrity(buffer))
+	{
+		Controller->Disconnect("Invalid data received. Integrity check unsuccessful.", false);
+	}
 	if (contentsSize == 0)
 	{
 		TCPBufferReader reader;
@@ -122,13 +141,6 @@ void UTCPSessionBase::RecvMessageCallback(FByteArrayRef& messageByte)
 void UTCPSessionBase::SendMessageCallback(int32 BytesTransferred, int32 id)
 {
 	OnSend(id, BytesTransferred);
-}
-
-void UTCPSessionBase::RegisterRecvPacket(TSubclassOf<UTCPRecvPacketBase> recvPacket)
-{
-	auto c = *recvPacket;
-	auto cdo = recvPacket.GetDefaultObject();
-	RecvPacketMap.Add(cdo->GetPacketId(), *recvPacket);
 }
 
 void UTCPSessionBase::SetController(TCPClientController* controller)

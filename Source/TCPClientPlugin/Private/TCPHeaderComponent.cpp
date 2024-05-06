@@ -10,7 +10,7 @@ int32 UTCPHeaderComponent::GetHeaderSize() const
 }
 
 int32 UTCPHeaderComponent::ReadTotalSize(uint8* buffer) const
-{	
+{
 	const TCPPacketHeader header = *(reinterpret_cast<TCPPacketHeader*>(buffer));
 	return header.Size;
 }
@@ -29,5 +29,10 @@ void UTCPHeaderComponent::WriteHeader(TCPBufferWriter& writer, int32 protocolId)
 	FMemory::Memcpy(&writer.GetData()[skipByte], &totalPacketSize, sizeof(TCPPacketHeader::Size));
 	skipByte += sizeof(TCPPacketHeader::Size);
 	FMemory::Memcpy(&writer.GetData()[skipByte], &protocolId, sizeof(TCPPacketHeader::Id));
+}
+
+bool UTCPHeaderComponent::CheckIntegrity(uint8* buffer) const
+{
+	return true;
 }
 
