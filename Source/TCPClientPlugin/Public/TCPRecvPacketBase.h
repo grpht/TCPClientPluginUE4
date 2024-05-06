@@ -30,7 +30,7 @@ public:
 	virtual void ConvertFromBytes(TCPBufferReader& reader) override;
 
 	UFUNCTION(BlueprintPure, Category = "TCPRecvPacket",
-		meta = (DisplayName = "CreateSendPacket"))
+		meta = (DisplayName = "CreateRecvPacket"))
 	static UTCPRecvPacketBase* CreateRecvPacketBP(TSubclassOf<UTCPRecvPacketBase> packet);
 
 protected:
