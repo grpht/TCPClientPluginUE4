@@ -4,7 +4,7 @@
 
 enum TCPClientError
 {
-    None = 0,
+    TCP_No_Error = 0,
     Connect_AddressisNotValid,
     Connect_Closed,
     Connect_AlreadyConnected,

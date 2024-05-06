@@ -199,7 +199,7 @@ void TCPClientController::PrintErrorMessage(int error)
 {
 	switch (error)
 	{
-	case None:
+	case TCP_No_Error:
 		break;
 	case Connect_AddressisNotValid:
 		UE_LOG(LogTemp, Error, TEXT("Address is Not Valid."));
